@@ -2,7 +2,9 @@ import streamlit as st
 import sqlite3
 import os
 from datetime import datetime, timedelta
-
+import sys
+sys.path.append('..')
+from utils import most_recent_db 
 
 def get_latest_run_name(db):
     conn = sqlite3.connect(db)
@@ -19,9 +21,8 @@ def calc_ntype():
     st.session_state.ntype = st.session_state.emu_tot-st.session_state.stype
 
 def add_run(db, newdb):
-    st.subheader("Add New Run")
     run = get_latest_run_name(db)
-    st.write(f"Adding {run}")
+    st.subheader(f"Add {run}")
 
     col1, col2 = st.columns([1,1])
     with col1:
@@ -44,7 +45,7 @@ def add_run(db, newdb):
     with col3:
         emu_ntype = st.number_input("Number of Nagoya films", key="ntype", min_value=0, max_value=st.session_state.emu_tot, value=int(st.session_state.emu_tot/2)+(st.session_state.emu_tot%2), on_change=calc_stype)
     with col4:
-        emu_stype = st.number_input("Number of Nagoya films", key="stype", min_value=0, max_value=st.session_state.emu_tot, value=int(st.session_state.emu_tot/2), on_change=calc_ntype)    
+        emu_stype = st.number_input("Number of Slavich films", key="stype", min_value=0, max_value=st.session_state.emu_tot, value=int(st.session_state.emu_tot/2), on_change=calc_ntype)    
     emu_remaining1 = st.session_state.emu_tot-emu_stype-emu_ntype
     if emu_remaining1 > 0 :
         st.error(f"{emu_remaining1} films remain for distribution. Please distribute accordingly.")
@@ -52,10 +53,18 @@ def add_run(db, newdb):
         st.error(f"Distribution exceeded {-emu_remaining1} films. Please distribute accordingly.")
 
     st.caption("Distributions:")
-    emu_to_na = st.number_input("Distribution to NA", min_value=0, max_value=st.session_state.emu_tot, value=int(st.session_state.emu_tot/4)+(st.session_state.emu_tot%4), placeholder=f"Remaining films: {int(st.session_state.emu_tot/4)+(st.session_state.emu_tot%4)}")
-    emu_to_bo = st.number_input("Distribution to BO", min_value=0, max_value=st.session_state.emu_tot, value=int((st.session_state.emu_tot-emu_to_na)/3)+((st.session_state.emu_tot-emu_to_na)%3), placeholder=f"Remaining films: {int((st.session_state.emu_tot-emu_to_na)/3)+((st.session_state.emu_tot-emu_to_na)%3)}")
-    emu_to_cr = st.number_input("Distribution to CR", min_value=0, max_value=st.session_state.emu_tot, value=int((st.session_state.emu_tot-emu_to_na-emu_to_bo)/2)+((st.session_state.emu_tot-emu_to_na-emu_to_bo)%2), placeholder=f"Remaining films: {int((st.session_state.emu_tot-emu_to_na-emu_to_bo)/2)+((st.session_state.emu_tot-emu_to_na-emu_to_bo)%2)}")
-    emu_to_le = st.number_input("Distribution to LE", min_value=0, max_value=st.session_state.emu_tot-emu_to_na-emu_to_bo-emu_to_cr, value=st.session_state.emu_tot-emu_to_na-emu_to_bo-emu_to_cr, placeholder=f"Remaining films: {st.session_state.emu_tot - emu_to_na - emu_to_bo - emu_to_cr}")
+    col5, col6, col7, col8 = st.columns([1,1,1,1])
+    with col5:
+        emu_to_na = st.number_input("Distribution to NA", min_value=0, max_value=st.session_state.emu_tot, value=int(st.session_state.emu_tot/4)+(st.session_state.emu_tot%4), placeholder=f"Remaining films: {int(st.session_state.emu_tot/4)+(st.session_state.emu_tot%4)}")
+    with col6:
+        emu_to_bo = st.number_input("Distribution to BO", min_value=0, max_value=st.session_state.emu_tot, value=int((st.session_state.emu_tot-emu_to_na)/3)+((st.session_state.emu_tot-emu_to_na)%3), placeholder=f"Remaining films: {int((st.session_state.emu_tot-emu_to_na)/3)+((st.session_state.emu_tot-emu_to_na)%3)}")
+    with col7:
+        emu_to_cr = st.number_input("Distribution to CR", min_value=0, max_value=st.session_state.emu_tot, value=int((st.session_state.emu_tot-emu_to_na-emu_to_bo)/2)+((st.session_state.emu_tot-emu_to_na-emu_to_bo)%2), placeholder=f"Remaining films: {int((st.session_state.emu_tot-emu_to_na-emu_to_bo)/2)+((st.session_state.emu_tot-emu_to_na-emu_to_bo)%2)}")
+    with col8:
+        emu_to_le = st.number_input("Distribution to LE", min_value=0, max_value=st.session_state.emu_tot-emu_to_na-emu_to_bo-emu_to_cr, value=st.session_state.emu_tot-emu_to_na-emu_to_bo-emu_to_cr, placeholder=f"Remaining films: {st.session_state.emu_tot - emu_to_na - emu_to_bo - emu_to_cr}")
+    
+    
+    
     emu_remaining2 = st.session_state.emu_tot-emu_to_na-emu_to_bo-emu_to_cr-emu_to_le
     if emu_remaining2>0 :
         st.error(f"{emu_remaining2} films remain for distribution. Please distribute accordingly.")
@@ -94,17 +103,8 @@ def add_run(db, newdb):
 if __name__ == '__main__':
     st.title("Add New Run")
 
-    # Return most recent db
     db_folder = './data/'  
-    db_files = os.listdir(db_folder)
-    if len(db_files) == 1: 
-        db = os.path.join(db_folder, db_files[0])
-    else:
-
-        db_files = [f for f in db_files if f.startswith('emu_') and f.endswith('.db')] # filter files that don't match
-        timestamps = [datetime.strptime(f.split('emu_')[1], "%Y-%m-%d_%H-%M-%S.db") for f in db_files]
-        idx_most_recent = timestamps.index(max(timestamps))
-        db = os.path.join(db_folder, db_files[idx_most_recent])
+    db = most_recent_db(db_folder)
 
     # Update db and save with a new datetime filename 
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
