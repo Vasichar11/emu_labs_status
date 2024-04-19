@@ -1,4 +1,4 @@
-# app/Dockerfile
+# emulsion_app/Dockerfile
 
 FROM python:3.9-slim
 
@@ -18,6 +18,6 @@ RUN pip3 install -r requirements.txt
 
 EXPOSE 8501
 
-HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
+HEALTHCHECK CMD curl --fail https://emu-emulsion-scanning-progress.app.cern.ch:8501
 
-ENTRYPOINT ["streamlit", "run", "Overview.py", "--server.port=8080", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "Overview.py", "--server.port=8501", "--server.address=https://emu-emulsion-scanning-progress.app.cern.ch/"]
