@@ -1,5 +1,4 @@
 import sqlite3
-import streamlit as st
 
 def aggregate_lab_progress(db):
     conn = sqlite3.connect(db)

@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 import sys
 sys.path.append('..')
-from utils import query_labs, query_period, most_recent_db
+from src import utils
 
 def update_cumulative_sums(entries):
     scanned_sum = 0
@@ -21,13 +21,13 @@ def update_cumulative_sums(entries):
     return scanned_sum, linked_sum, aligned_sum
 
 def select_lab(db):
-    labs = query_labs(db)
+    labs = utils.query_labs(db)
     lab = st.selectbox('Select a Laboratory', labs)
     st.write('Selected lab:', lab)
     return lab
 
 def select_period(db, lab):
-    years, weeks, dates = query_period(db, lab)
+    years, weeks, dates = utils.query_period(db, lab)
     st.text(dates)
     period = st.selectbox('Period of report:', dates)
     st.write('Selected period:', period)
@@ -78,7 +78,7 @@ def delete_entries():
 if __name__ == '__main__':
     st.title("Shifter Update")
     db_folder = "./data/"
-    db = most_recent_db(db_folder)
+    db = utils.most_recent_db(db_folder)
     lab = select_lab(db)
     period = select_period(db,lab)
     entry(db,lab,period)

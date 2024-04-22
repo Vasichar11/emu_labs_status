@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta
 import sys
 sys.path.append('..')
-from utils import most_recent_db 
+from src import utils
 
 def get_latest_run_name(db):
     conn = sqlite3.connect(db)
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     st.title("Add New Run")
 
     db_folder = './data/'  
-    db = most_recent_db(db_folder)
+    db = utils.most_recent_db(db_folder)
 
     # Update db and save with a new datetime filename 
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
