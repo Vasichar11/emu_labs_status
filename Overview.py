@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 
 #import sys
 #sys.path.append('..')
@@ -7,7 +8,9 @@ from src import utils, aggregations, visualizations
 if __name__ == '__main__':
     st.title("Overview")
     st.sidebar.success("Select a page above.")
-    
+    current_directory = os.getcwd()
+    st.text(f"Current directory: {current_directory}")
+
     db_folder = './data/'  
     db = utils.most_recent_db(db_folder)
 
